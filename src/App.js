@@ -1,7 +1,8 @@
 import Tweet from "./components/Tweet";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { Button, Card } from "react-bootstrap";
+import { Card } from "react-bootstrap";
+import { Alert } from "react-bootstrap";
 
 let lastId = 7;
 
@@ -13,6 +14,8 @@ function App() {
 
   today = yyyy + "-" + mm + "-" + dd;
 
+  const [fields, setFields] = useState(true);
+  const [tweetAttempt, setTweetAttempt] = useState(false);
   const [tweets, setTweets] = useState([]);
   const [tweetRefState, setTweetRefState] = useState("");
   const [authorName, setAuthorName] = useState("");
@@ -24,13 +27,18 @@ function App() {
 
   const addTweet = (e) => {
     e.preventDefault();
-    lastId = lastId + 1;
-    setTweets([
-      { id: lastId, text: tweetRefState, author: authorName, date: today },
-      ...tweets,
-    ]);
-    setAuthorName("");
-    setTweetRefState("");
+    setTweetAttempt(true);
+    if (authorName && tweetRefState) {
+      lastId = lastId + 1;
+      setTweets([
+        { id: lastId, text: tweetRefState, author: authorName, date: today },
+        ...tweets,
+      ]);
+      setAuthorName("");
+      setTweetRefState("");
+    } else {
+      setFields(false);
+    }
   };
 
   const fetchTweets = () => {
@@ -60,46 +68,56 @@ function App() {
           paddingTop: "40px",
         }}
       >
-        <div class="form-group">
-          <label for="exampleInputEmail1">Tweet here</label>
+        <div className="form-group">
+          <label htmlFor="exampleInputEmail1">Tweet here</label>
           <input
             type="authorName"
             name="authorName"
             value={authorName}
-            class="form-control"
+            className="form-control"
             placeholder="hey what's your name (because there is no backend here)"
             ref={authorRef}
             onChange={() => {
               setAuthorName(authorRef.current.value);
+              setFields(true);
+              setTweetAttempt(false);
             }}
           />
           <input
             type="tweet"
             name="tweet"
             value={tweetRefState}
-            class="form-control"
+            className="form-control"
             placeholder="Whats happening?"
             ref={tweetRef}
             onChange={() => {
               setTweetRefState(tweetRef.current.value);
+              setFields(true);
+              setTweetAttempt(false);
             }}
           />
-          <small id="emailHelp" class="form-text text-muted">
+          {!fields && (
+            <Alert variant="danger">Fields cannot be empty to tweet</Alert>
+          )}
+          {fields && tweetAttempt && (
+            <Alert variant="success">Tweet has been added successfully</Alert>
+          )}
+          <small id="emailHelp" className="form-text text-muted">
             Twitter is definately the app for you
           </small>
         </div>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" className="btn btn-primary">
           Tweet
         </button>
       </form>
       {tweets.map((tweet, key) => {
         key = tweet.id;
-
+        console.log(key);
         return (
           <div>
             <Tweet
-              key={key}
+              key={tweet.id}
               {...tweet}
               deleteTweet={() => {
                 deleteTweet(key);
