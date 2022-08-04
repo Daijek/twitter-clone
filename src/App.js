@@ -1,7 +1,9 @@
 import Tweet from "./components/Tweet";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { Card } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
+
+let lastId = 7;
 
 function App() {
   var today = new Date();
@@ -22,9 +24,9 @@ function App() {
 
   const addTweet = (e) => {
     e.preventDefault();
-
+    lastId = lastId + 1;
     setTweets([
-      { text: tweetRefState, author: authorName, date: today },
+      { id: lastId, text: tweetRefState, author: authorName, date: today },
       ...tweets,
     ]);
     setAuthorName("");
@@ -42,6 +44,11 @@ function App() {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const deleteTweet = (id) => {
+    const filterTweets = tweets.filter((tweet) => tweet.id !== id);
+    setTweets(filterTweets);
   };
   return (
     <div style={{ background: "#1DA1F2" }} className="App">
@@ -89,7 +96,18 @@ function App() {
       {tweets.map((tweet, key) => {
         key = tweet.id;
 
-        return <Tweet key={key} {...tweet} />;
+        return (
+          <div>
+            <Tweet
+              key={key}
+              {...tweet}
+              deleteTweet={() => {
+                deleteTweet(key);
+                console.log(key);
+              }}
+            />
+          </div>
+        );
       })}
       <Card
         style={{

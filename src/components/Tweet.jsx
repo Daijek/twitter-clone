@@ -1,7 +1,8 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 
-const Tweet = ({ text, author, date }) => {
+const Tweet = ({ text, author, date, deleteTweet }) => {
   return (
     <div>
       <Card
@@ -19,6 +20,14 @@ const Tweet = ({ text, author, date }) => {
           <Card.Text>
             by {author} on {date}
           </Card.Text>
+          <Button
+            onClick={() => {
+              deleteTweet();
+            }}
+            variant="danger"
+          >
+            Delete tweet
+          </Button>{" "}
         </Card.Body>
       </Card>
     </div>
