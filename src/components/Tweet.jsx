@@ -2,7 +2,15 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 
-const Tweet = ({ text, author, date, deleteTweet }) => {
+const Tweet = ({
+  text,
+  author,
+  date,
+  deleteTweet,
+  addToFavourtites,
+  datas,
+  id,
+}) => {
   return (
     <div>
       <Card
@@ -15,6 +23,7 @@ const Tweet = ({ text, author, date, deleteTweet }) => {
           background: "white",
         }}
       >
+        {JSON.stringify(datas)}
         <Card.Body>
           <Card.Title>{text.toUpperCase()}</Card.Title>
           <Card.Text>
@@ -28,6 +37,25 @@ const Tweet = ({ text, author, date, deleteTweet }) => {
           >
             Delete tweet
           </Button>{" "}
+          {datas.includes(id) ? (
+            <Button
+              onClick={() => {
+                addToFavourtites();
+              }}
+              variant="secondary"
+            >
+              remove from favourite
+            </Button>
+          ) : (
+            <Button
+              onClick={() => {
+                addToFavourtites();
+              }}
+              variant="info"
+            >
+              add to favourite
+            </Button>
+          )}
         </Card.Body>
       </Card>
     </div>
