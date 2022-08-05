@@ -3,43 +3,21 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Card } from "react-bootstrap";
 import { Alert } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import {
+  addFavouriteTweets,
+  removeFavouriteTweets,
+} from "./feautures/favouriteTweets/favouriteTweetsSlice";
 
 let lastId = 7;
 
 function App() {
-  var today = new Date();
-  var dd = String(today.getDate()).padStart(2, "0");
-  var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
-  var yyyy = today.getFullYear();
+  const dispatch = useDispatch();
 
-  today = yyyy + "-" + mm + "-" + dd;
-
-  const [fields, setFields] = useState(true);
-  const [tweetAttempt, setTweetAttempt] = useState(false);
-  const [tweets, setTweets] = useState([]);
-  const [tweetRefState, setTweetRefState] = useState("");
-  const [authorName, setAuthorName] = useState("");
-  const tweetRef = useRef(null);
-  const authorRef = useRef(null);
+  //functions start
   useEffect(() => {
     fetchTweets();
   }, []);
-
-  const addTweet = (e) => {
-    e.preventDefault();
-    setTweetAttempt(true);
-    if (authorName && tweetRefState) {
-      lastId = lastId + 1;
-      setTweets([
-        { id: lastId, text: tweetRefState, author: authorName, date: today },
-        ...tweets,
-      ]);
-      setAuthorName("");
-      setTweetRefState("");
-    } else {
-      setFields(false);
-    }
-  };
 
   const fetchTweets = () => {
     axios
@@ -58,6 +36,52 @@ function App() {
     const filterTweets = tweets.filter((tweet) => tweet.id !== id);
     setTweets(filterTweets);
   };
+
+  const addTweet = (e) => {
+    e.preventDefault();
+    setTweetAttempt(true);
+    if (authorName && tweetRefState) {
+      lastId = lastId + 1;
+      setTweets([
+        { id: lastId, text: tweetRefState, author: authorName, date: today },
+        ...tweets,
+      ]);
+      setAuthorName("");
+      setTweetRefState("");
+    } else {
+      setFields(false);
+    }
+  };
+
+  //functions end
+
+  //This is how the current date is gotten
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, "0");
+  var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  var yyyy = today.getFullYear();
+
+  today = yyyy + "-" + mm + "-" + dd;
+
+  //this use state is used ti set the state of the tweet fields
+  const [fields, setFields] = useState(true);
+
+  const [favouriteTweets, setFavouriteTweets] = useState([]);
+
+  //I used the useState hook to store the state of a of when a user attemts to tweet something (true or false)
+  const [tweetAttempt, setTweetAttempt] = useState(false);
+
+  //Tweets is the array that stores the tweets that are looped over to display on the tweets page
+  const [tweets, setTweets] = useState([]);
+
+  //The tweetRefState and the authorName are the states of the form value to add tweets
+  const [tweetRefState, setTweetRefState] = useState("");
+  const [authorName, setAuthorName] = useState("");
+
+  //These are the references of the inputs for adding tweets
+  const tweetRef = useRef(null);
+  const authorRef = useRef(null);
+
   return (
     <div style={{ background: "#1DA1F2" }} className="App">
       <form
@@ -114,14 +138,38 @@ function App() {
       {tweets.map((tweet, key) => {
         key = tweet.id;
         console.log(key);
+
+        //This sets the favourite status of a tweet
         return (
           <div>
             <Tweet
               key={tweet.id}
+              id={tweet.id}
               {...tweet}
               deleteTweet={() => {
                 deleteTweet(key);
                 console.log(key);
+              }}
+              datas={favouriteTweets}
+              addToFavourtites={() => {
+                if (!favouriteTweets.includes(tweet.id)) {
+                  setFavouriteTweets([...favouriteTweets, tweet.id]);
+                  dispatch(addFavouriteTweets(tweet));
+                  // if (favTweets.includes(tweet)) {
+                  //   setFavouriteStatus(true);
+                  //   setDatas([...datas, tweet.id]);
+                  //   dispatch(addFavouriteTweets(tweet));
+                  // } else {
+                  //   setFavouriteStatus(false);
+                  //   dispatch(addFavouriteTweets(tweet));
+                  // }
+                } else {
+                  const removeIds = favouriteTweets.filter(
+                    (id) => id !== tweet.id
+                  );
+                  setFavouriteTweets(removeIds);
+                  dispatch(removeFavouriteTweets(tweet.id));
+                }
               }}
             />
           </div>
